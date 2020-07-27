@@ -2,49 +2,11 @@
 
 # Android Technical Test
 
-## Objective
-
-Below are a set of requirements from a business owner within Bridge International Academies, relating to a need to be able to administer pupil information from a mobile application.  The basic framework of the application already exists, but needs to be extended with the some or all of the given requirements.
-
-We assess a number of things including the design of your solution and your programming skills. While these are small problems, we expect you to submit what you believe is production-quality code – code that you’d be able to run, maintain, and evolve, including any tests that you would normally write as part of the development process. You don’t need to gold plate your solution; you do not have to complete all requirements; please submit when you are happy that you have demonstrated your ability to deliver within the alloted time frame.
-
-As a general rule, we allow three days from the date that you receive these instructions to submit your code, but you may request more time if needed. It is not required that all requirements are completed within this time period.  Please submit the exercise when you are happy with that you have demonstrated 
-
-If you have any questions about the code as it relates to your interview process, please contact us.
-
-
 ## Technical Test API
 
 The Technical Test API is a RESTful web service that makes uses of basic HTTP GET, POST, PUT and DELETE calls. The API documentation can be accessed [here](https://androidtechnicaltestapi-test.bridgeinternationalacademies.com/swagger/index.html).
 
 ![Technical Test API](TechnicalTestAPI.png)
-
-### Swagger
-
-Upon visiting the API documentation page, you will see the following page where you can see a short description of the API, followed by the resources it provides and a list of all the actions that can be performed on them. You can also try out the API directly from the web browser. The API exposes a standard [Swagger](http://swagger.io/) endpoint.
-
-### Real World Simulation
-
-The API attempts to simulate real world usage in several ways:
-
-1. Occasionally real web services go down due to any number of reasons. The Technical Test API will occasionally throw errors. Your app will need to deal with this.
-2. To simulate bad network connectivity or the server being under intense load, the Technical Test API will sometimes take a few seconds to respond.
-3. To simulate other users creating, updating and deleting data the Technical Test API will sometimes create, update or delete pupils from its internal database.
-
-### Validation
-
-Pupils have several fields, including Name, Country, Image, Latitude and Longitude. To insert or update a pupil, these fields values must be valid for the Technical Test API to accept them. If they are invalid the API will return a standard 400 Bad Request error response.
-
-### Reset
-
-During testing you may have deleted all pupils or added lots of strange and invalid data. You can use the reset endpoint to clear the database and seed it with some stock data so you can start from afresh.
-
-## Projects
-
-To give you a starting point. We created two project for each of the supported language on Native Android, please feel free to choose the language you feel more comfortable working with
-
-1. Java: android-tech-test-java
-2. Kotlin: android-tech-test-kotlin
 
 ## App Requirements
 
@@ -62,4 +24,42 @@ In addition, you should also:
 2. Write production quality code.
 3. Submit your source code as a .zip file. Also, do not include any binary files in your final solution.
 
-## Good Luck!
+## App Flow
+
+Thanks for the opportunity.
+I have used the following technologies in building the app.
+1. Android navigation components
+2. Data Binding
+3. MVVM architecture
+4. RX Java
+5. Broadcast Receivers and Intent Services
+6. ROOM ORM
+
+The app flow is as follows:
+A single activity, MainActivity is the starting point. I have used android navigational components to connect the pupil list fragment and pupil detail fragment to it. It basically handles all the fragment transaction work for us in a very smooth manner.
+
+Next, the app uses MVVM (Model-View-ViewModel) architecture .
+The app begins from PupilListFragment which communicates with PupilViewModel to display the list of pupils.
+PupilViewModel fetches the data from local db and returns a live data attached to it. Simultaneosuly, it makes an asynchronous call to Backend to fetch the list of pupils. When the pupils are received from Backend, they are stored in local DB and returend to the caller (in this case PupilListFragment).
+PupilListFragment uses a recycler view to show all the list of pupils.
+Whenever, a pupil is clicked in the recycler view, PupilDetailFragment opens up.
+This fragment (like the PupilListFragment) also communicates with the same PupilViewModel to fetch the PupilView detail info. And simultaneosuly makes a call to Backend to fetch the same. Whenever, a response is received the data in local DB is updated.
+
+To handle deletes, there is a button on the PupilDetailFragment.
+There are 2 cases, when the user clicks on delete button
+1. Internet connection is avaialable
+2. Internet connection is not available
+
+The above scenarios works as follows:
+1. Interet connection is there -> In this case, a call is made to Backend to delete the pupil. When deleted the pupil is also deleted from the local DB. If not deleted and there is some error in deleting, we remove this pupil from deletion queue.
+2. Internt connection is not there -> We set the flag toBeDeleted to TRUE in local DB. A broadcast receiver is created to listen to netowork changes. Whenever, there is an active internet connection, all those pupils are fetched from local DB with flag toBeDeleted = TRUE and a backend call is made to delete these pupils. Also, since there is no internet connection, hence to indicate the pupil is to be deleted, we show a text , "TO BE DELETED" in RED both in list and detail screen to indicate that this user is in queue to be deleted.
+
+## Future Scope
+
+1. Can add a swipe refresh indicator on the list screen. Hence, need to re-open app again to see updated data. 
+2. Can add a retry logic whenever a network call fails . 
+3. Did not implement add or update pupil. Both cases work on similar lines as the deletion scenarios. If network is not there, both can be saved into local DB with a boolean flag to indicate that a new user is to be created or an existing one has to be updated. And can be synced to Backend whenever , there is an active internet connection.
+4. Did not write unit test cases as dont have much experience in it to be honest.
+
+The above points were not done due to time constraints. Had there been more time, app could have been made much better.
+Thanks
