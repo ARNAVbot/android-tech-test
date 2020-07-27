@@ -7,4 +7,7 @@
     <string name="reset">Reset</string>
     <string name="data_reset">Api Data Reset</string>
     <string name="data_reset_failed">Data Reset Failed</string>
+    <string name="data_list_fail">Failed to load list </string>
+    <string name="data_detail_fail">Failed to load detail </string>
+    <string name="pupil_deleted">Pupuil Deleted successfully</string>
 </resources>

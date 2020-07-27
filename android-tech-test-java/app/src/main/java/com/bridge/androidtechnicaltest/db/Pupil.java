@@ -1,8 +1,8 @@
 package com.bridge.androidtechnicaltest.db;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 @Entity(tableName = "Pupils")
 public class Pupil {
@@ -25,13 +25,18 @@ public class Pupil {
     @ColumnInfo(name = "longitude")
     private Double longitude;
 
-    public Pupil(Long pupilId, String name, String value, String image, Double latitude, Double longitude) {
+    //Status to indicate if this pupil needs to be deleted.
+    @ColumnInfo(name = "toBeDeleted")
+    private boolean toBeDeleted = false;
+
+    public Pupil(Long pupilId, String name, String value, String image, Double latitude, Double longitude, boolean toBeDeleted) {
         this.pupilId = pupilId;
         this.name = name;
         this.value = value;
         this.image = image;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.toBeDeleted = toBeDeleted;
     }
 
     public Long getPupilId() {
@@ -82,6 +87,14 @@ public class Pupil {
         this.longitude = longitude;
     }
 
+    public boolean isToBeDeleted() {
+        return toBeDeleted;
+    }
+
+    public void setToBeDeleted(boolean toBeDeleted) {
+        this.toBeDeleted = toBeDeleted;
+    }
+
     @Override
     public String toString() {
         return "Pupil{" +
@@ -91,6 +104,7 @@ public class Pupil {
                 ", image='" + image + '\'' +
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
+                ", toBeDeleted=" + toBeDeleted +
                 '}';
     }
 }

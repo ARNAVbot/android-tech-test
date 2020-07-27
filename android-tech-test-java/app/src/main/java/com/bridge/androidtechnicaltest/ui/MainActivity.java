@@ -1,76 +1,67 @@
 package com.bridge.androidtechnicaltest.ui;
 
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+
+import com.bridge.androidtechnicaltest.InternetBroadCastReceiver;
+import com.bridge.androidtechnicaltest.databinding.ActivityMainBinding;
+import com.google.android.material.snackbar.Snackbar;
+
+import androidx.fragment.app.FragmentManager;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.NavController;
+import androidx.navigation.NavGraph;
+import androidx.navigation.NavInflater;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
+
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.bridge.androidtechnicaltest.App;
 import com.bridge.androidtechnicaltest.R;
 import com.bridge.androidtechnicaltest.db.PupilDao;
-import com.bridge.androidtechnicaltest.db.PupilList;
 import com.bridge.androidtechnicaltest.network.PupilService;
 
 import javax.inject.Inject;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.observers.DisposableCompletableObserver;
-import io.reactivex.observers.DisposableSingleObserver;
-import io.reactivex.schedulers.Schedulers;
-
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = MainActivity.class.getCanonicalName();
+    private NavController navController;
+    private ActivityMainBinding binding;
 
-    @Inject
-    PupilDao pupilDao;
-    @Inject
-    PupilService pupilService;
+    private static final String TAG = MainActivity.class.getCanonicalName();
+    private InternetBroadCastReceiver broadCastReceiver;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((App) getApplication()).getApplicationComponent().inject(this);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
 
-        if (savedInstanceState == null) {
-            FragmentManager fm = getSupportFragmentManager();
-            fm.beginTransaction()
-                    .add(R.id.container, new PupilListFragment())
-                    .commit();
-        }
+        broadCastReceiver = new InternetBroadCastReceiver();
+        registerReceiver(broadCastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
+        navController = Navigation.findNavController(this, R.id.navigationHostFragment);
+        NavInflater navInflater = navController.getNavInflater();
+        NavGraph navGraph = navInflater.inflate(R.navigation.nav_graph);
+        navController.setGraph(navGraph);
+        NavigationUI.setupActionBarWithNavController(
+                this, navController);
+
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(broadCastReceiver);
     }
-
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_reset) {
-            resetApiData();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void resetApiData() {
-
-    }
-
-    private void onDataResetFailed() {
-        Snackbar.make(findViewById(R.id.main_layout),
-                R.string.data_reset_failed, Snackbar.LENGTH_SHORT).show();
-    }
-
-    private void onDataReset() {
-        Snackbar.make(findViewById(R.id.main_layout),
-                R.string.data_reset, Snackbar.LENGTH_SHORT).show();
+    public boolean onSupportNavigateUp() {
+        return navController.navigateUp();
     }
 }
